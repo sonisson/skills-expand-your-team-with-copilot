@@ -165,7 +165,7 @@ initial_activities = {
         "participants": ["william@mergington.edu", "jacob@mergington.edu"]
     },
     "Manga Maniacs": {
-        "description": "Journey through the worlds of Japanese manga—from high-stakes battles to heartfelt friendships—and geek out over iconic characters and legendary plot twists with fellow fans.",
+        "description": "Turn every Tuesday into a manga adventure—explore Japanese manga filled with epic rivalries, heartfelt friendships, iconic heroes, and jaw-dropping twists with fellow fans.",
         "schedule": "Tuesdays, 7:00 PM - 8:30 PM",
         "schedule_details": {
             "days": ["Tuesday"],
