@@ -24,8 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
-  messageDiv.setAttribute("role", "status");
-  messageDiv.setAttribute("aria-live", "polite");
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -334,24 +332,30 @@ document.addEventListener("DOMContentLoaded", () => {
     return `Check out ${activityName} at Mergington High School! ${description}(${formatSchedule(details)}).`;
   }
 
-  async function copyShareLink(activityName) {
+  function setShareStatus(activityCard, message) {
+    const shareStatus = activityCard.querySelector(".share-status");
+    shareStatus.textContent = message;
+  }
+
+  async function copyShareLink(activityName, activityCard) {
     const shareUrl = buildActivityShareUrl(activityName);
 
     try {
       await navigator.clipboard.writeText(shareUrl);
-      showMessage("Share link copied.", "success");
+      setShareStatus(activityCard, "Link copied.");
     } catch (error) {
       console.error("Error copying share link:", error);
+      setShareStatus(activityCard, "Couldn't copy the link. Please try again.");
       showMessage("Couldn't copy the link. Please try again.", "error");
     }
   }
 
-  async function shareActivity(activityName, details) {
+  async function shareActivity(activityName, details, activityCard) {
     const shareUrl = buildActivityShareUrl(activityName);
     const shareText = buildActivityShareText(activityName, details);
 
     if (!navigator.share) {
-      await copyShareLink(activityName);
+      await copyShareLink(activityName, activityCard);
       return;
     }
 
@@ -361,9 +365,14 @@ document.addEventListener("DOMContentLoaded", () => {
         text: shareText,
         url: shareUrl,
       });
+      setShareStatus(activityCard, "Share options opened.");
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("Error sharing activity:", error);
+        setShareStatus(
+          activityCard,
+          "Couldn't open the share menu. Please try again."
+        );
         showMessage("Couldn't open the share menu. Please try again.", "error");
       }
     }
@@ -386,8 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sharedActivityCard.classList.add("shared-activity-highlight");
     sharedActivityCard.scrollIntoView({ behavior: "smooth", block: "center" });
-    sharedActivityCard.focus({ preventScroll: true });
-    showMessage(`${sharedActivityName} has been opened.`, "info");
+    setShareStatus(sharedActivityCard, `${sharedActivityName} opened from a shared link.`);
 
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.delete("activity");
@@ -656,6 +664,7 @@ document.addEventListener("DOMContentLoaded", () => {
             WhatsApp
           </a>
         </div>
+        <p class="share-status" aria-live="polite"></p>
       </div>
     `;
 
@@ -731,13 +740,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const nativeShareButton = activityCard.querySelector(".native-share-button");
     if (nativeShareButton) {
       nativeShareButton.addEventListener("click", async () => {
-        await shareActivity(name, details);
+        await shareActivity(name, details, activityCard);
       });
     }
 
     const copyShareButton = activityCard.querySelector(".copy-share-button");
     copyShareButton.addEventListener("click", async () => {
-      await copyShareLink(name);
+      await copyShareLink(name, activityCard);
     });
 
     activitiesList.appendChild(activityCard);

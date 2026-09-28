@@ -209,6 +209,13 @@ section h3 {
   gap: 8px;
 }
 
+.share-status {
+  min-height: 18px;
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
 .share-button {
   display: inline-flex;
   align-items: center;
