@@ -310,21 +310,26 @@ document.addEventListener("DOMContentLoaded", () => {
     return activityName.trim().toLowerCase();
   }
 
-  function getActivityCardId(activityName) {
-    return `activity-${normalizeActivityName(activityName).replace(
-      /[^a-z0-9]+/g,
-      "-"
-    )}`;
+  function findActivityCard(activityName) {
+    return Array.from(document.querySelectorAll(".activity-card")).find(
+      (card) => normalizeActivityName(card.dataset.activityName) ===
+        normalizeActivityName(activityName)
+    );
   }
 
   function buildActivityShareUrl(activityName) {
-    const shareUrl = new URL(window.location.href);
+    const shareUrl = new URL(
+      `${window.location.origin}${window.location.pathname}`
+    );
     shareUrl.searchParams.set("activity", activityName);
     return shareUrl.toString();
   }
 
   function buildActivityShareText(activityName, details) {
-    return `Check out ${activityName} at Mergington High School! ${details.description} (${formatSchedule(details)}).`;
+    const description = details.description
+      ? `${details.description} `
+      : "";
+    return `Check out ${activityName} at Mergington High School! ${description}(${formatSchedule(details)}).`;
   }
 
   async function copyShareLink(activityName) {
@@ -367,9 +372,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const sharedActivityCard = document.getElementById(
-      getActivityCardId(sharedActivityName)
-    );
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.delete("activity");
+    window.history.replaceState({}, "", currentUrl);
+
+    const sharedActivityCard = findActivityCard(sharedActivityName);
+    sharedActivityName = "";
 
     if (!sharedActivityCard) {
       return;
@@ -378,12 +386,6 @@ document.addEventListener("DOMContentLoaded", () => {
     sharedActivityCard.classList.add("shared-activity-highlight");
     sharedActivityCard.scrollIntoView({ behavior: "smooth", block: "center" });
     sharedActivityCard.focus({ preventScroll: true });
-
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.delete("activity");
-    window.history.replaceState({}, "", currentUrl);
-
-    sharedActivityName = "";
   }
 
   // Function to determine activity type (this would ideally come from backend)
@@ -560,7 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
-    activityCard.id = getActivityCardId(name);
+    activityCard.dataset.activityName = name;
     activityCard.tabIndex = -1;
 
     // Calculate spots and capacity
