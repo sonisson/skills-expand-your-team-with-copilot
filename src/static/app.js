@@ -395,6 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sharedActivityCard.classList.add("shared-activity-highlight");
     sharedActivityCard.scrollIntoView({ behavior: "smooth", block: "center" });
+    sharedActivityCard.focus({ preventScroll: true });
     setShareStatus(sharedActivityCard, `${sharedActivityName} opened from a shared link.`);
 
     const currentUrl = new URL(window.location.href);
