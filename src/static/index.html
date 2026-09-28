@@ -11,6 +11,16 @@
       <h1>Mergington High School</h1>
       <h2>Extracurricular Activities</h2>
       <div id="user-controls">
+        <button
+          id="theme-toggle"
+          class="icon-button hidden"
+          type="button"
+          aria-label="Switch to dark mode"
+          aria-pressed="false"
+        >
+          <span id="theme-toggle-icon" aria-hidden="true">🌙</span>
+          <span id="theme-toggle-text">Dark mode</span>
+        </button>
         <div id="user-status">
           <button id="login-button" class="icon-button">
             <span class="user-icon">👤</span>
@@ -97,6 +107,45 @@
                   After School
                 </button>
                 <button class="time-filter" data-time="weekend">Weekend</button>
+              </div>
+            </div>
+
+            <div class="filter-container difficulty-filter-container">
+              <div class="filter-label">Filter by difficulty:</div>
+              <div
+                class="difficulty-filters"
+                id="difficulty-filters"
+                role="group"
+                aria-label="Difficulty filter"
+              >
+                <button
+                  class="difficulty-filter active"
+                  data-difficulty=""
+                  aria-pressed="true"
+                >
+                  No Specific Difficulty
+                </button>
+                <button
+                  class="difficulty-filter"
+                  data-difficulty="Beginner"
+                  aria-pressed="false"
+                >
+                  Beginner
+                </button>
+                <button
+                  class="difficulty-filter"
+                  data-difficulty="Intermediate"
+                  aria-pressed="false"
+                >
+                  Intermediate
+                </button>
+                <button
+                  class="difficulty-filter"
+                  data-difficulty="Advanced"
+                  aria-pressed="false"
+                >
+                  Advanced
+                </button>
               </div>
             </div>
           </aside>

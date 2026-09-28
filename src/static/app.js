@@ -14,8 +14,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoryFilters = document.querySelectorAll(".category-filter");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
+  const difficultyFilters = document.querySelectorAll(".difficulty-filter");
 
   // Authentication elements
+  const themeToggleButton = document.getElementById("theme-toggle");
+  const themeToggleIcon = document.getElementById("theme-toggle-icon");
+  const themeToggleText = document.getElementById("theme-toggle-text");
   const loginButton = document.getElementById("login-button");
   const userInfo = document.getElementById("user-info");
   const displayName = document.getElementById("display-name");
@@ -40,11 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
+  let currentDifficulty = "";
   let sharedActivityName =
     new URLSearchParams(window.location.search).get("activity") || "";
 
   // Authentication state
   let currentUser = null;
+  let currentTheme = "light";
+  let hasExplicitThemePreference = false;
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -52,6 +59,36 @@ document.addEventListener("DOMContentLoaded", () => {
     afternoon: { start: "15:00", end: "18:00" }, // After school hours
     weekend: { days: ["Saturday", "Sunday"] }, // Weekend days
   };
+  const systemThemeQuery = window.matchMedia
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
+
+  function readFromStorage(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.warn(`Unable to read ${key} from local storage.`, error);
+      return null;
+    }
+  }
+
+  function writeToStorage(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      console.warn(`Unable to save ${key} to local storage.`, error);
+      return false;
+    }
+  }
+
+  function removeFromStorage(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.warn(`Unable to remove ${key} from local storage.`, error);
+    }
+  }
 
   // Initialize filters from active elements
   function initializeFilters() {
@@ -65,6 +102,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeTimeFilter = document.querySelector(".time-filter.active");
     if (activeTimeFilter) {
       currentTimeRange = activeTimeFilter.dataset.time;
+    }
+
+    const activeDifficultyFilter = document.querySelector(
+      ".difficulty-filter.active"
+    );
+    if (activeDifficultyFilter) {
+      currentDifficulty = activeDifficultyFilter.dataset.difficulty;
     }
   }
 
@@ -100,9 +144,77 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchActivities();
   }
 
+  function setDifficultyFilter(difficulty) {
+    currentDifficulty = difficulty;
+
+    difficultyFilters.forEach((btn) => {
+      if (btn.dataset.difficulty === difficulty) {
+        btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
+      } else {
+        btn.classList.remove("active");
+        btn.setAttribute("aria-pressed", "false");
+      }
+    });
+
+    displayFilteredActivities();
+  }
+
+  function applyTheme(theme) {
+    currentTheme = theme === "dark" ? "dark" : "light";
+    const isDarkMode = currentTheme === "dark";
+
+    document.body.classList.toggle("dark-mode", isDarkMode);
+
+    if (themeToggleButton) {
+      themeToggleButton.classList.remove("hidden");
+      themeToggleButton.setAttribute("aria-pressed", String(isDarkMode));
+      themeToggleButton.setAttribute(
+        "aria-label",
+        isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+      );
+    }
+
+    if (themeToggleIcon) {
+      themeToggleIcon.textContent = isDarkMode ? "☀️" : "🌙";
+    }
+
+    if (themeToggleText) {
+      themeToggleText.textContent = isDarkMode ? "Light mode" : "Dark mode";
+    }
+  }
+
+  function initializeTheme() {
+    const savedTheme = readFromStorage("preferredTheme");
+
+    if (savedTheme === "light" || savedTheme === "dark") {
+      hasExplicitThemePreference = true;
+      applyTheme(savedTheme);
+      return;
+    }
+
+    hasExplicitThemePreference = false;
+    const prefersDarkMode = systemThemeQuery && systemThemeQuery.matches;
+
+    applyTheme(prefersDarkMode ? "dark" : "light");
+  }
+
+  function toggleTheme() {
+    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+    hasExplicitThemePreference = true;
+    applyTheme(nextTheme);
+    writeToStorage("preferredTheme", nextTheme);
+  }
+
+  function syncThemeWithSystemPreference(event) {
+    if (!hasExplicitThemePreference) {
+      applyTheme(event.matches ? "dark" : "light");
+    }
+  }
+
   // Check if user is already logged in (from localStorage)
   function checkAuthentication() {
-    const savedUser = localStorage.getItem("currentUser");
+    const savedUser = readFromStorage("currentUser");
     if (savedUser) {
       try {
         currentUser = JSON.parse(savedUser);
@@ -135,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Session is valid, update user data
       const userData = await response.json();
       currentUser = userData;
-      localStorage.setItem("currentUser", JSON.stringify(userData));
+      writeToStorage("currentUser", JSON.stringify(userData));
       updateAuthUI();
     } catch (error) {
       console.error("Error validating session:", error);
@@ -192,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Login successful
       currentUser = data;
-      localStorage.setItem("currentUser", JSON.stringify(data));
+      writeToStorage("currentUser", JSON.stringify(data));
       updateAuthUI();
       closeLoginModalHandler();
       showMessage(`Welcome, ${currentUser.display_name}!`, "success");
@@ -207,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Logout function
   function logout() {
     currentUser = null;
-    localStorage.removeItem("currentUser");
+    removeFromStorage("currentUser");
     updateAuthUI();
     showMessage("You have been logged out.", "info");
   }
@@ -237,6 +349,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Event listeners for authentication
+  if (themeToggleButton) {
+    themeToggleButton.addEventListener("click", toggleTheme);
+  }
+
+  if (systemThemeQuery) {
+    systemThemeQuery.addEventListener("change", syncThemeWithSystemPreference);
+  }
   loginButton.addEventListener("click", openLoginModal);
   logoutButton.addEventListener("click", logout);
   closeLoginModal.addEventListener("click", closeLoginModalHandler);
@@ -538,11 +657,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
+      const activityDifficulty = details.difficulty || "";
+      if (currentDifficulty) {
+        if (activityDifficulty && activityDifficulty !== currentDifficulty) {
+          return;
+        }
+      } else if (activityDifficulty) {
+        return;
+      }
+
       // Apply search filter
       const searchableContent = [
         name.toLowerCase(),
         details.description.toLowerCase(),
         formatSchedule(details).toLowerCase(),
+        activityDifficulty.toLowerCase(),
       ].join(" ");
 
       if (
@@ -750,6 +879,16 @@ document.addEventListener("DOMContentLoaded", () => {
       await copyShareLink(name, activityCard);
     });
 
+    if (details.difficulty) {
+      const difficultyBadge = document.createElement("p");
+      difficultyBadge.className = "activity-difficulty";
+      difficultyBadge.textContent = details.difficulty;
+      activityCard.insertBefore(
+        difficultyBadge,
+        activityCard.querySelector("p")
+      );
+    }
+
     activitiesList.appendChild(activityCard);
   }
 
@@ -801,6 +940,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update current time filter and fetch activities
       currentTimeRange = button.dataset.time;
       fetchActivities();
+    });
+  });
+
+  difficultyFilters.forEach((button) => {
+    button.addEventListener("click", () => {
+      setDifficultyFilter(button.dataset.difficulty);
     });
   });
 
@@ -1022,9 +1167,11 @@ document.addEventListener("DOMContentLoaded", () => {
   window.activityFilters = {
     setDayFilter,
     setTimeRangeFilter,
+    setDifficultyFilter,
   };
 
   // Initialize app
+  initializeTheme();
   checkAuthentication();
   initializeFilters();
   fetchActivities();

@@ -1,26 +1,32 @@
 # Mergington High School Activities
 
-This folder contains the full website for browsing and managing Mergington High School extracurricular activities.
+This folder contains the FastAPI app and website for browsing and managing Mergington High School extracurricular activities.
 
 ## What the website does
 
-- Shows extracurricular activities as cards on the main page
+- Shows extracurricular activities as cards on the main page, including descriptions, schedules, current enrollment, and participants
 - Lets visitors search activities by name, description, or schedule
 - Lets visitors filter activities by category, day, and time of day
-- Shows current enrollment and remaining spots for each activity
 - Lets teachers log in so they can register or unregister students
-- Includes share options for each activity, including copy link, email, and WhatsApp
+- Includes share options for each activity, including copy link, email, WhatsApp, and the device share menu when available
 - Highlights an activity when someone opens a shared activity link
 
 ## How the app is organized
 
-- `app.py` starts the FastAPI app, loads sample data, and serves the website
+- `app.py` starts the FastAPI app, loads sample data, serves the website, and loads the API routers
 - `backend/database.py` connects to MongoDB and seeds starter activities and teacher accounts
 - `backend/routers/activities.py` contains activity listing, signup, and unregister endpoints
 - `backend/routers/auth.py` contains teacher login and session-check endpoints
 - `static/index.html` contains the page layout and login/register dialogs
 - `static/app.js` handles filters, authentication, sharing, and activity updates in the browser
 - `static/styles.css` contains the website styling
+
+## Data and access
+
+- Activity and teacher data are stored in MongoDB
+- The app seeds starter activities and teacher accounts when the database is empty
+- Students can browse activities without logging in
+- Teacher login is required before changing registrations
 
 ## Main user flows
 
@@ -52,4 +58,4 @@ When calling endpoints that use `{activity_name}`, use the activity name from th
 
 ## Running locally
 
-For setup and local development instructions, refer to the [Development Guide](../docs/how-to-develop.md).
+For setup and local development steps, see the [Development Guide](../docs/how-to-develop.md).
