@@ -374,10 +374,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.delete("activity");
-    window.history.replaceState({}, "", currentUrl);
-
     const sharedActivityCard = findActivityCard(sharedActivityName);
 
     if (!sharedActivityCard) {
@@ -391,7 +387,12 @@ document.addEventListener("DOMContentLoaded", () => {
     sharedActivityCard.classList.add("shared-activity-highlight");
     sharedActivityCard.scrollIntoView({ behavior: "smooth", block: "center" });
     sharedActivityCard.focus({ preventScroll: true });
-    showMessage(`${sharedActivityName} is ready to share.`, "info");
+    showMessage(`${sharedActivityName} has been opened.`, "info");
+
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.delete("activity");
+    window.history.replaceState({}, "", currentUrl);
+
     sharedActivityName = "";
   }
 
