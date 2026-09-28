@@ -48,6 +48,8 @@ This folder contains the full website for browsing and managing Mergington High 
 | POST | `/auth/login` | Logs in a teacher |
 | GET | `/auth/check-session` | Confirms a saved teacher session |
 
+When calling endpoints that use `{activity_name}`, use the activity name from the website and URL-encode spaces or special characters. For example, `Chess Club` becomes `Chess%20Club`.
+
 ## Running locally
 
 For setup and local development instructions, refer to the [Development Guide](../docs/how-to-develop.md).
