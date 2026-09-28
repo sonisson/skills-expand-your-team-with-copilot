@@ -112,23 +112,38 @@
 
             <div class="filter-container difficulty-filter-container">
               <div class="filter-label">Filter by difficulty:</div>
-              <div class="difficulty-filters" id="difficulty-filters">
-                <button class="difficulty-filter active" data-difficulty="">
-                  All Levels
+              <div
+                class="difficulty-filters"
+                id="difficulty-filters"
+                role="group"
+                aria-label="Difficulty filter"
+              >
+                <button
+                  class="difficulty-filter active"
+                  data-difficulty=""
+                  aria-pressed="true"
+                >
+                  Open to All
                 </button>
                 <button
                   class="difficulty-filter"
                   data-difficulty="Beginner"
+                  aria-pressed="false"
                 >
                   Beginner
                 </button>
                 <button
                   class="difficulty-filter"
                   data-difficulty="Intermediate"
+                  aria-pressed="false"
                 >
                   Intermediate
                 </button>
-                <button class="difficulty-filter" data-difficulty="Advanced">
+                <button
+                  class="difficulty-filter"
+                  data-difficulty="Advanced"
+                  aria-pressed="false"
+                >
                   Advanced
                 </button>
               </div>

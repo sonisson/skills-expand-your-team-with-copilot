@@ -150,8 +150,10 @@ document.addEventListener("DOMContentLoaded", () => {
     difficultyFilters.forEach((btn) => {
       if (btn.dataset.difficulty === difficulty) {
         btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
       } else {
         btn.classList.remove("active");
+        btn.setAttribute("aria-pressed", "false");
       }
     });
 
@@ -730,9 +732,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
-    const difficultyHtml = details.difficulty
-      ? `<p class="activity-difficulty">${details.difficulty}</p>`
-      : "";
 
     // Create activity tag
     const tagHtml = `
@@ -802,7 +801,6 @@ document.addEventListener("DOMContentLoaded", () => {
     activityCard.innerHTML = `
       ${tagHtml}
       <h4>${name}</h4>
-      ${difficultyHtml}
       <p>${details.description}</p>
       <p class="tooltip">
         <strong>Schedule:</strong> ${formattedSchedule}
@@ -880,6 +878,16 @@ document.addEventListener("DOMContentLoaded", () => {
     copyShareButton.addEventListener("click", async () => {
       await copyShareLink(name, activityCard);
     });
+
+    if (details.difficulty) {
+      const difficultyBadge = document.createElement("p");
+      difficultyBadge.className = "activity-difficulty";
+      difficultyBadge.textContent = details.difficulty;
+      activityCard.insertBefore(
+        difficultyBadge,
+        activityCard.querySelector("p")
+      );
+    }
 
     activitiesList.appendChild(activityCard);
   }
