@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
+  messageDiv.setAttribute("role", "status");
+  messageDiv.setAttribute("aria-live", "polite");
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -377,15 +379,20 @@ document.addEventListener("DOMContentLoaded", () => {
     window.history.replaceState({}, "", currentUrl);
 
     const sharedActivityCard = findActivityCard(sharedActivityName);
-    sharedActivityName = "";
 
     if (!sharedActivityCard) {
       return;
     }
 
+    document
+      .querySelectorAll(".shared-activity-highlight")
+      .forEach((card) => card.classList.remove("shared-activity-highlight"));
+
     sharedActivityCard.classList.add("shared-activity-highlight");
     sharedActivityCard.scrollIntoView({ behavior: "smooth", block: "center" });
     sharedActivityCard.focus({ preventScroll: true });
+    showMessage(`${sharedActivityName} is ready to share.`, "info");
+    sharedActivityName = "";
   }
 
   // Function to determine activity type (this would ideally come from backend)
