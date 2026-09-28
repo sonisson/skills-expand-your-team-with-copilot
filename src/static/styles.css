@@ -48,6 +48,29 @@ body {
   padding: 12px;
   background-color: var(--background);
   font-size: 0.9rem;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+body.dark-mode {
+  --primary: #7c8cff;
+  --primary-light: #a2adff;
+  --primary-dark: #5a6cf2;
+  --primary-text: #0f172a;
+  --background: #111827;
+  --surface: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --border: #374151;
+  --border-light: #4b5563;
+  --border-focus: #6b7280;
+  --success-light: #153b1d;
+  --warning-light: #4a3410;
+  --error-light: #4a1f25;
+  --info: #8be9fd;
+  --info-light: #13323a;
+  color-scheme: dark;
 }
 
 header {
@@ -553,6 +576,8 @@ footer {
   border-radius: 20px 0 0 20px;
   font-size: 0.85rem;
   transition: all 0.3s ease;
+  background-color: var(--surface);
+  color: var(--text-primary);
 }
 
 .search-box input:focus {
@@ -678,6 +703,9 @@ footer {
   position: absolute;
   top: 10px;
   right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 #user-status {
