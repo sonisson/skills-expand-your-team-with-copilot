@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoryFilters = document.querySelectorAll(".category-filter");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
+  const difficultyFilters = document.querySelectorAll(".difficulty-filter");
 
   // Authentication elements
   const themeToggleButton = document.getElementById("theme-toggle");
@@ -43,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
+  let currentDifficulty = "";
   let sharedActivityName =
     new URLSearchParams(window.location.search).get("activity") || "";
 
@@ -101,6 +103,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (activeTimeFilter) {
       currentTimeRange = activeTimeFilter.dataset.time;
     }
+
+    const activeDifficultyFilter = document.querySelector(
+      ".difficulty-filter.active"
+    );
+    if (activeDifficultyFilter) {
+      currentDifficulty = activeDifficultyFilter.dataset.difficulty;
+    }
   }
 
   // Function to set day filter
@@ -133,6 +142,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fetchActivities();
+  }
+
+  function setDifficultyFilter(difficulty) {
+    currentDifficulty = difficulty;
+
+    difficultyFilters.forEach((btn) => {
+      if (btn.dataset.difficulty === difficulty) {
+        btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
+      } else {
+        btn.classList.remove("active");
+        btn.setAttribute("aria-pressed", "false");
+      }
+    });
+
+    displayFilteredActivities();
   }
 
   function applyTheme(theme) {
@@ -632,11 +657,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
+      const activityDifficulty = details.difficulty || "";
+      if (currentDifficulty) {
+        if (activityDifficulty && activityDifficulty !== currentDifficulty) {
+          return;
+        }
+      } else if (activityDifficulty) {
+        return;
+      }
+
       // Apply search filter
       const searchableContent = [
         name.toLowerCase(),
         details.description.toLowerCase(),
         formatSchedule(details).toLowerCase(),
+        activityDifficulty.toLowerCase(),
       ].join(" ");
 
       if (
@@ -844,6 +879,16 @@ document.addEventListener("DOMContentLoaded", () => {
       await copyShareLink(name, activityCard);
     });
 
+    if (details.difficulty) {
+      const difficultyBadge = document.createElement("p");
+      difficultyBadge.className = "activity-difficulty";
+      difficultyBadge.textContent = details.difficulty;
+      activityCard.insertBefore(
+        difficultyBadge,
+        activityCard.querySelector("p")
+      );
+    }
+
     activitiesList.appendChild(activityCard);
   }
 
@@ -895,6 +940,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update current time filter and fetch activities
       currentTimeRange = button.dataset.time;
       fetchActivities();
+    });
+  });
+
+  difficultyFilters.forEach((button) => {
+    button.addEventListener("click", () => {
+      setDifficultyFilter(button.dataset.difficulty);
     });
   });
 
@@ -1116,6 +1167,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.activityFilters = {
     setDayFilter,
     setTimeRangeFilter,
+    setDifficultyFilter,
   };
 
   // Initialize app
